@@ -17,7 +17,6 @@ class Element {
     private Double detJpc1, detJpc2, detJpc3, detJpc4;
     private ArrayList<Double> detJpc = new ArrayList<>(4);
 
-    double Nx, Ny;
     private double xKsi, yEta, yKsi, xEta;
 
     double[] NiXpc1 = new double[4], NiXpc2 = new double[4], NiXpc3 = new double[4], NiXpc4 = new double[4];
@@ -26,26 +25,28 @@ class Element {
     private ArrayList<double[]> NiY = new ArrayList<>(4);
 
 
-    Element(int elementNumber, ArrayList<FemNode> id) throws FileNotFoundException {
+    Element(int elementNumber, ArrayList<FemNode> id) {
         this.elementNumber = elementNumber;
         this.id = id;
     }
 
-    void calculateH(){
+    // Macierz H elementu
+    void calculateH() {
 
         calculateHpc();
 
         H = Matrices.multiplyByValue(
                 Matrices.add(
                         Matrices.add(
-                                Matrices.multiplyByValue(Hpc1,detJpc1),
-                                Matrices.multiplyByValue(Hpc2,detJpc2)),
+                                Matrices.multiplyByValue(Hpc1, detJpc1),
+                                Matrices.multiplyByValue(Hpc2, detJpc2)),
                         Matrices.add(
-                                Matrices.multiplyByValue(Hpc3,detJpc3),
-                                Matrices.multiplyByValue(Hpc4,detJpc4))),
+                                Matrices.multiplyByValue(Hpc3, detJpc3),
+                                Matrices.multiplyByValue(Hpc4, detJpc4))),
                 K);
     }
 
+    // Macierze H dla kazdego z punktów całkowania
     private void calculateHpc() {
 
         calculateShapeFunctionDerivatives();
@@ -137,6 +138,7 @@ class Element {
         NiYpc4 = NiY.get(3);
     }
 
+    // Wyznaczniki Jacobiego dla każdego z punktów całkowania
     private void calculateDetJ() {
         int signKsi, signEta;
         for (int i = 1; i <= SIZE; i++) {
@@ -186,9 +188,9 @@ class Element {
         detJpc4 = detJpc.get(3);
     }
 
-    public boolean isBorder (){
-        for (FemNode node : id){
-            if (node.isBc()){
+    public boolean isBorder() {
+        for (FemNode node : id) {
+            if (node.isBc()) {
                 return true;
             }
         }
@@ -244,7 +246,7 @@ class Element {
         System.out.print("detJ Pc4 = " + detJpc4 + "\n");
     }
 
-    void printHpcs(){
+    void printHpcs() {
         System.out.print("H Pc1:\n");
         Matrices.printTable(Hpc1);
         System.out.print("\n");
