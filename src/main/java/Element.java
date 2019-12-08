@@ -42,8 +42,8 @@ class Element {
                                 Matrices.multiplyByValue(Hpc2,detJpc2)),
                         Matrices.add(
                                 Matrices.multiplyByValue(Hpc3,detJpc3),
-                                Matrices.multiplyByValue(Hpc4,detJpc4)))
-                ,K);
+                                Matrices.multiplyByValue(Hpc4,detJpc4))),
+                K);
     }
 
     private void calculateHpc() {
@@ -184,6 +184,15 @@ class Element {
         detJpc2 = detJpc.get(1);
         detJpc3 = detJpc.get(2);
         detJpc4 = detJpc.get(3);
+    }
+
+    public boolean isBorder (){
+        for (FemNode node : id){
+            if (node.isBc()){
+                return true;
+            }
+        }
+        return false;
     }
 
     int getElementNumber() {

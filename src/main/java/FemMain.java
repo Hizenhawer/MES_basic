@@ -41,7 +41,7 @@ public class FemMain {
 //        Matrices.printTable(Matrices.multiplyByValue(m1,5));
 
         for (Element element : grid.getElements()){
-            System.out.print("Element " + element.getElementNumber() + "\n");
+            System.out.print("Element " + element.getElementNumber() + "\n"+"Is border element: "+element.isBorder()+"\n");
             element.calculateH();
             element.printH();
             System.out.print("\n");
