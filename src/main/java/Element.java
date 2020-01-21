@@ -1,18 +1,23 @@
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import static java.lang.StrictMath.sqrt;
 
 class Element {
-    private static final double K = 30; //steel
+    private static final double K = 25; //steel
     private static final int SIZE = 4;
     private static final double KSI = 1. / sqrt(3.), ETA = 1. / sqrt(3.);
     private int elementNumber;
     private ArrayList<FemNode> id; // Np 1,6,7,2
 
+
     private double[][] H = new double[SIZE][SIZE];
     private double[][] Hpc1, Hpc2, Hpc3, Hpc4;
     private ArrayList<double[][]> Hpc = new ArrayList<>(4);
+
+    private static final double CCONSTANT = 1200;
+    private double[][] C = new double[SIZE][SIZE];
+    private double[][] Cpc1, Cpc2, Cpc3, Cpc4;
+    private ArrayList<double[][]> Cpc = new ArrayList<>(4);
 
     private Double detJpc1, detJpc2, detJpc3, detJpc4;
     private ArrayList<Double> detJpc = new ArrayList<>(4);
@@ -24,10 +29,86 @@ class Element {
     private ArrayList<double[]> NiX = new ArrayList<>(4);
     private ArrayList<double[]> NiY = new ArrayList<>(4);
 
+    double[] Nipc1 = new double[4], Nipc2 = new double[4], Nipc3 = new double[4], Nipc4 = new double[4];
+    private ArrayList<double[]> Ni = new ArrayList<>(4);
+
 
     Element(int elementNumber, ArrayList<FemNode> id) {
         this.elementNumber = elementNumber;
         this.id = id;
+    }
+
+    //Macierz C elementu
+    void calculateC() {
+
+        calculateCpc();
+        calculateDetJ();
+
+        C = Matrices.add(
+                Matrices.add(
+                        Matrices.multiplyByValue(Cpc1, detJpc1),
+                        Matrices.multiplyByValue(Cpc2, detJpc2)),
+                Matrices.add(
+                        Matrices.multiplyByValue(Cpc3, detJpc3),
+                        Matrices.multiplyByValue(Cpc4, detJpc4)
+                )
+        );
+    }
+
+    //Macierze C dla każdego punktu całkowania
+    private void calculateCpc() {
+        calculateShapeFunctions();
+
+        double[][] tmpCpc;
+        for (int i = 0; i < 4; i++) {
+            tmpCpc = Matrices.multiplyByValue(
+                    Matrices.multiplyVectorByTransposedVector(Ni.get(i)),
+                    CCONSTANT);
+            Cpc.add(tmpCpc);
+        }
+        Cpc1 = Cpc.get(0);
+        Cpc2 = Cpc.get(1);
+        Cpc3 = Cpc.get(2);
+        Cpc4 = Cpc.get(3);
+    }
+
+    //Wartości funkcji kształtu
+    private void calculateShapeFunctions() {
+        int signKsi, signEta;
+        for (int i = 1; i <= SIZE; i++) {
+            switch (i) {
+                case 1:
+                    signKsi = -1;
+                    signEta = -1;
+                    break;
+                case 2:
+                    signKsi = 1;
+                    signEta = -1;
+                    break;
+                case 3:
+                    signKsi = 1;
+                    signEta = 1;
+                    break;
+                case 4:
+                    signKsi = -1;
+                    signEta = 1;
+                    break;
+                default:
+                    return;
+            }
+            double[] Nipc = new double[4];
+            Nipc[0] = 1. / 4. * (1 - KSI * signKsi) * (1 - ETA * signEta);
+            Nipc[1] = 1. / 4. * (1 + KSI * signKsi) * (1 - ETA * signEta);
+            Nipc[2] = 1. / 4. * (1 + KSI * signKsi) * (1 + ETA * signEta);
+            Nipc[3] = 1. / 4. * (1 - KSI * signKsi) * (1 + ETA * signEta);
+
+            Ni.add(Nipc);
+        }
+        Nipc1 = Ni.get(0);
+        Nipc2 = Ni.get(1);
+        Nipc3 = Ni.get(2);
+        Nipc4 = Ni.get(3);
+
     }
 
     // Macierz H elementu
@@ -263,5 +344,17 @@ class Element {
 
     void printH() {
         Matrices.printTable(H);
+    }
+
+    void printC() {
+        Matrices.printTable(C);
+    }
+
+    public ArrayList<FemNode> getId() {
+        return id;
+    }
+
+    public double[][] getH() {
+        return H;
     }
 }

@@ -1,11 +1,31 @@
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class FemMain {
     public static void main(String[] args) {
         //Matrices.initiate();
 
+        int nH = 0;
+        int nW = 0;
+        try (InputStream input = new FileInputStream(Globals.CONFIG_RELATIVE_PATH)) {
+            Properties prop = new Properties();
+            prop.load(input);
+
+            nH = Integer.parseInt(prop.getProperty("nH"));
+            nW = Integer.parseInt(prop.getProperty("nW"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         FemGrid grid = new FemGrid();
         grid.GenerateGrid();
 
-        //grid.print();
+        double[][] HGlobal = fillHglobal(nH * nW, grid);
+
+
+//        grid.print();
         //grid.printElementByElementNumber(5);
 
         //System.out.printf("Eta Table:\n");
@@ -40,11 +60,33 @@ public class FemMain {
 //        double[][] m1 = {{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}};
 //        Matrices.printTable(Matrices.multiplyByValue(m1,5));
 
-        for (Element element : grid.getElements()){
-            System.out.print("Element " + element.getElementNumber() + "\n"+"Is border element: "+element.isBorder()+"\n");
+//        for (Element element : grid.getElements()){
+//            System.out.print("Element " + element.getElementNumber() + "\n"+"Is border element: "+element.isBorder()+"\n");
+//            element.calculateH();
+//            element.printH();
+//            System.out.print("\n");
+//        }
+
+//        for (Element element : grid.getElements()) {
+//            System.out.print("Element " + element.getElementNumber() + "\n" + "Is border element: " + element.isBorder() + "\n");
+//            element.calculateC();
+//            element.printC();
+//            System.out.print("\n");
+//        }
+
+        Matrices.printTable(HGlobal);
+    }
+
+    private static double[][] fillHglobal(int size, FemGrid grid) {
+        double[][] result = new double[size][size];
+        for (Element element : grid.getElements()) {
             element.calculateH();
-            element.printH();
-            System.out.print("\n");
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    result[element.getId().get(i).getId()-1][element.getId().get(j).getId()-1]+=element.getH()[i][j];
+                }
+            }
         }
+        return result;
     }
 }

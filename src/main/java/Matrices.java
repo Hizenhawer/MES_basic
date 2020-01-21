@@ -65,8 +65,8 @@ public class Matrices {
 //    }
 
     static void printTable(double[][] tab) {
-        for (int i = 0; i < NUMBER_OF_DIFFERENTIAL_POINTS; i++) {
-            for (int j = 0; j < NUMBER_OF_DIFFERENTIAL_POINTS; j++) {
+        for (int i = 0; i < tab.length; i++) {
+            for (int j = 0; j < tab.length; j++) {
                 System.out.printf("%.4f", tab[j][i]);
                 System.out.print("|");
             }
