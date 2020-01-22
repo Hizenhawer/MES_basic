@@ -1,9 +1,13 @@
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import static java.lang.StrictMath.sqrt;
 
 class Element {
-    private static final double K = 25; //steel
+    private static double K;
     private static final int SIZE = 4;
     private static final double KSI = 1. / sqrt(3.), ETA = 1. / sqrt(3.);
     private int elementNumber;
@@ -14,7 +18,8 @@ class Element {
     private double[][] Hpc1, Hpc2, Hpc3, Hpc4;
     private ArrayList<double[][]> Hpc = new ArrayList<>(4);
 
-    private static final double CCONSTANT = 1200;
+    private static double RO;
+    private static double CP;
     private double[][] C = new double[SIZE][SIZE];
     private double[][] Cpc1, Cpc2, Cpc3, Cpc4;
     private ArrayList<double[][]> Cpc = new ArrayList<>(4);
@@ -36,6 +41,17 @@ class Element {
     Element(int elementNumber, ArrayList<FemNode> id) {
         this.elementNumber = elementNumber;
         this.id = id;
+
+        try (InputStream input = new FileInputStream(Globals.CONFIG_RELATIVE_PATH)) {
+            Properties prop = new Properties();
+            prop.load(input);
+
+            K = Double.parseDouble(prop.getProperty("k"));
+            CP = Double.parseDouble(prop.getProperty("cp"));
+            RO = Double.parseDouble(prop.getProperty("ro"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     //Macierz C elementu
@@ -44,15 +60,17 @@ class Element {
         calculateCpc();
         calculateDetJ();
 
-        C = Matrices.add(
-                Matrices.add(
-                        Matrices.multiplyByValue(Cpc1, detJpc1),
-                        Matrices.multiplyByValue(Cpc2, detJpc2)),
-                Matrices.add(
-                        Matrices.multiplyByValue(Cpc3, detJpc3),
-                        Matrices.multiplyByValue(Cpc4, detJpc4)
-                )
-        );
+        C = Matrices.multiplyByValue(
+                Matrices.multiplyByValue(
+                        Matrices.add(
+                                Matrices.add(
+                                        Matrices.multiplyByValue(Cpc1, detJpc1),
+                                        Matrices.multiplyByValue(Cpc2, detJpc2)),
+                                Matrices.add(
+                                        Matrices.multiplyByValue(Cpc3, detJpc3),
+                                        Matrices.multiplyByValue(Cpc4, detJpc4))),
+                        CP),
+                RO);
     }
 
     //Macierze C dla każdego punktu całkowania
@@ -61,9 +79,7 @@ class Element {
 
         double[][] tmpCpc;
         for (int i = 0; i < 4; i++) {
-            tmpCpc = Matrices.multiplyByValue(
-                    Matrices.multiplyVectorByTransposedVector(Ni.get(i)),
-                    CCONSTANT);
+            tmpCpc = Matrices.multiplyVectorByTransposedVector(Ni.get(i));
             Cpc.add(tmpCpc);
         }
         Cpc1 = Cpc.get(0);
@@ -356,5 +372,9 @@ class Element {
 
     public double[][] getH() {
         return H;
+    }
+
+    public double[][] getC() {
+        return C;
     }
 }

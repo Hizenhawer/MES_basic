@@ -23,6 +23,7 @@ public class FemMain {
         grid.GenerateGrid();
 
         double[][] HGlobal = fillHglobal(nH * nW, grid);
+        double[][] CGlobal = fillCglobal(nH * nW, grid);
 
 
 //        grid.print();
@@ -74,7 +75,20 @@ public class FemMain {
 //            System.out.print("\n");
 //        }
 
-        Matrices.printTable(HGlobal);
+        Matrices.printTable(CGlobal);
+    }
+
+    private static double[][] fillCglobal(int size, FemGrid grid) {
+        double[][] result = new double[size][size];
+        for (Element element : grid.getElements()){
+            element.calculateC();
+            for (int i = 0; i < 4; i++) {
+                for (int j = 0; j < 4; j++) {
+                    result[element.getId().get(i).getId() - 1][element.getId().get(j).getId() - 1] += element.getC()[i][j];
+                }
+            }
+        }
+        return result;
     }
 
     private static double[][] fillHglobal(int size, FemGrid grid) {
@@ -83,7 +97,7 @@ public class FemMain {
             element.calculateH();
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {
-                    result[element.getId().get(i).getId()-1][element.getId().get(j).getId()-1]+=element.getH()[i][j];
+                    result[element.getId().get(i).getId() - 1][element.getId().get(j).getId() - 1] += element.getH()[i][j];
                 }
             }
         }
