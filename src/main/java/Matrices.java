@@ -10,6 +10,13 @@ public class Matrices {
         }
     }
 
+    static void printVector(double[] vec) {
+        for (double doubles : vec) {
+            System.out.printf("%.4f", doubles);
+            System.out.print("|");
+        }
+    }
+
     static double[][] multiplyVectorByTransposedVector(double[] v) {
         double[][] vM = new double[1][4];
         vM[0][0] = v[0];
@@ -42,6 +49,22 @@ public class Matrices {
             }
         }
         return matrix;
+    }
+
+    static double[] multiplyVectorByValue(double[] vector, double value) {
+        double[] result = vector.clone();
+        for (int i = 0; i < vector.length; i++) {
+            result[i] *= value;
+        }
+        return result;
+    }
+
+    static double[] addVectors(double[] a, double[] b) {
+        double[] result = new double[a.length];
+        for (int i = 0; i < a.length; i++) {
+            result[i] = a[i] + b[i];
+        }
+        return result;
     }
 
     static double[][] add(double[][] a, double[][] b) {

@@ -24,6 +24,7 @@ public class FemMain {
 
         double[][] HGlobal = fillHglobal(nH * nW, grid);
         double[][] CGlobal = fillCglobal(nH * nW, grid);
+        double[] PGlobal = gillPglobal(nH * nW, grid);
 
 
 //        grid.print();
@@ -61,12 +62,12 @@ public class FemMain {
 //        double[][] m1 = {{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}};
 //        Matrices.printTable(Matrices.multiplyByValue(m1,5));
 
-        for (Element element : grid.getElements()){
-            System.out.print("Element " + element.getElementNumber() + "\n"+"Is border element: "+element.isBorder()+"\n");
-            element.calculateH();
-            element.printH();
-            System.out.print("\n");
-        }
+//        for (Element element : grid.getElements()) {
+//            System.out.print("Element " + element.getElementNumber() + "\n" + "Is border element: " + element.isBorder() + "\n");
+//            element.calculateH();
+//            element.printH();
+//            System.out.print("\n");
+//        }
 
 //        for (Element element : grid.getElements()) {
 //            System.out.print("Element " + element.getElementNumber() + "\n" + "Is border element: " + element.isBorder() + "\n");
@@ -75,12 +76,25 @@ public class FemMain {
 //            System.out.print("\n");
 //        }
 
-        Matrices.printTable(HGlobal);
+//        Matrices.printTable(HGlobal);
+//        Matrices.printTable(CGlobal);
+        Matrices.printVector(PGlobal);
+    }
+
+    private static double[] gillPglobal(int size, FemGrid grid) {
+        double[] result = new double[size];
+        for (Element element : grid.getElements()) {
+            element.calculateP();
+            for (int i = 0; i < 4; i++) {
+                result[element.getId().get(i).getId() - 1] += element.getP()[i];
+            }
+        }
+        return result;
     }
 
     private static double[][] fillCglobal(int size, FemGrid grid) {
         double[][] result = new double[size][size];
-        for (Element element : grid.getElements()){
+        for (Element element : grid.getElements()) {
             element.calculateC();
             for (int i = 0; i < 4; i++) {
                 for (int j = 0; j < 4; j++) {

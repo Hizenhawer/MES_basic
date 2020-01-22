@@ -1,6 +1,7 @@
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AlgorithmConstraints;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -23,6 +24,10 @@ class Element {
     private double[][] C = new double[SIZE][SIZE];
     private double[][] Cpc1, Cpc2, Cpc3, Cpc4;
     private ArrayList<double[][]> Cpc = new ArrayList<>(4);
+
+    private static double TINF;
+    private static double ALFA;
+    private double[] P = new double[SIZE];
 
     private Double detJpc1, detJpc2, detJpc3, detJpc4;
     private ArrayList<Double> detJpc = new ArrayList<>(4);
@@ -49,9 +54,40 @@ class Element {
             K = Double.parseDouble(prop.getProperty("k"));
             CP = Double.parseDouble(prop.getProperty("cp"));
             RO = Double.parseDouble(prop.getProperty("ro"));
+            TINF = Double.parseDouble(prop.getProperty("tinf"));
+            ALFA = Double.parseDouble(prop.getProperty("alfa"));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    //Wektor P
+    void calculateP() {
+        calculateShapeFunctions();
+        calculateDetJ();
+
+        P = Matrices.addVectors(
+                Matrices.addVectors(
+                        Matrices.multiplyVectorByValue(
+                                Nipc1,
+                                ALFA*TINF*detJpc1
+                                ),
+                        Matrices.multiplyVectorByValue(
+                                Nipc2,
+                                ALFA*TINF*detJpc2
+                        )
+                ),
+                Matrices.addVectors(
+                        Matrices.multiplyVectorByValue(
+                                Nipc3,
+                                ALFA*TINF*detJpc3
+                        ),
+                        Matrices.multiplyVectorByValue(
+                                Nipc4,
+                                ALFA*TINF*detJpc4
+                        )
+                )
+        );
     }
 
     //Macierz C elementu
@@ -377,5 +413,9 @@ class Element {
 
     public double[][] getC() {
         return C;
+    }
+
+    public double[] getP() {
+        return P;
     }
 }
