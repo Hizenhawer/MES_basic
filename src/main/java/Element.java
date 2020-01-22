@@ -68,9 +68,10 @@ class Element {
                                         Matrices.multiplyByValue(Cpc2, detJpc2)),
                                 Matrices.add(
                                         Matrices.multiplyByValue(Cpc3, detJpc3),
-                                        Matrices.multiplyByValue(Cpc4, detJpc4))),
-                        CP),
-                RO);
+                                        Matrices.multiplyByValue(Cpc4, detJpc4))
+                        ), CP
+                ), RO
+        );
     }
 
     //Macierze C dla każdego punktu całkowania
