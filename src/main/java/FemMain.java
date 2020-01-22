@@ -61,12 +61,12 @@ public class FemMain {
 //        double[][] m1 = {{1,2,3,4},{5,6,7,8},{9,10,11,12},{13,14,15,16}};
 //        Matrices.printTable(Matrices.multiplyByValue(m1,5));
 
-//        for (Element element : grid.getElements()){
-//            System.out.print("Element " + element.getElementNumber() + "\n"+"Is border element: "+element.isBorder()+"\n");
-//            element.calculateH();
-//            element.printH();
-//            System.out.print("\n");
-//        }
+        for (Element element : grid.getElements()){
+            System.out.print("Element " + element.getElementNumber() + "\n"+"Is border element: "+element.isBorder()+"\n");
+            element.calculateH();
+            element.printH();
+            System.out.print("\n");
+        }
 
 //        for (Element element : grid.getElements()) {
 //            System.out.print("Element " + element.getElementNumber() + "\n" + "Is border element: " + element.isBorder() + "\n");
@@ -75,7 +75,7 @@ public class FemMain {
 //            System.out.print("\n");
 //        }
 
-        Matrices.printTable(CGlobal);
+        Matrices.printTable(HGlobal);
     }
 
     private static double[][] fillCglobal(int size, FemGrid grid) {
