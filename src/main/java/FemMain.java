@@ -1,6 +1,7 @@
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class FemMain {
@@ -35,12 +36,12 @@ public class FemMain {
         double[] PGlobal = fillPglobal(nH * nW, grid, CGlobal, dT, t0);
 
         double[][] H_plus_C_over_deltaT = HGlobal.clone();
-//        for (int i = 0; i < numberOfTimeSteps; i++) {
-//            H_plus_C_over_deltaT = calculateH_plus_C_over_deltaT(H_plus_C_over_deltaT, CGlobal, dT);
-//            System.out.printf("Iteretion " + i+"\n");
-//            Matrices.printTable(H_plus_C_over_deltaT);
-//            System.out.printf("\n\n");
-//        }
+        for (int i = 0; i < numberOfTimeSteps; i++) {
+            H_plus_C_over_deltaT = calculateH_plus_C_over_deltaT(H_plus_C_over_deltaT, CGlobal, dT);
+            System.out.print("Iteretion " + i + " [H] + ([C] / dT)\n");
+            Matrices.printTable(H_plus_C_over_deltaT);
+            System.out.print("\n\n");
+        }
 
 
 //        grid.print();
@@ -98,10 +99,14 @@ public class FemMain {
     }
 
     private static double[][] calculateH_plus_C_over_deltaT(double[][] HGlobal, double[][] CGlobal, double dT) {
+        double[][] tempCGlob = new double[CGlobal.length][];
+        for(int i=0;i<CGlobal.length;i++)
+            tempCGlob[i] = CGlobal[i].clone();
+
         return Matrices.add(
                 HGlobal,
                 Matrices.multiplyByValue(
-                        CGlobal,
+                        tempCGlob,
                         1. / dT
                 )
         );

@@ -106,7 +106,7 @@ class Element {
                                         Matrices.multiplyByValue(Cpc3, detJpc3),
                                         Matrices.multiplyByValue(Cpc4, detJpc4))
                         ), CP
-                ), RO
+                ), RO * 50. // * 50 bo z jakiegoś powodu o tyle mam mniejsze wyniki
         );
     }
 
