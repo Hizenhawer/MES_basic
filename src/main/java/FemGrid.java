@@ -36,6 +36,16 @@ class FemGrid {
     }
 
     private void GenerateNodes() {
+        double t0 = 0;
+        try (InputStream input = new FileInputStream(Globals.CONFIG_RELATIVE_PATH)) {
+            Properties prop = new Properties();
+            prop.load(input);
+
+            t0 = Double.parseDouble(prop.getProperty("t0"));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+
         ArrayList<FemNode> result = new ArrayList<>();
         try (InputStream input = new FileInputStream(CONFIG_RELATIVE_PATH)) {
             Properties prop = new Properties();
@@ -54,9 +64,9 @@ class FemGrid {
             for (int i = 0; i < nW; i++) {
                 for (int j = 0; j < nH; j++) {
                     if (j == 0 || i == 0 || i == nW - 1 || j == nH - 1) {
-                        result.add(new FemNode(master, i * dx, j * dy, true));
+                        result.add(new FemNode(master, i * dx, j * dy, true, t0));
                     } else {
-                        result.add(new FemNode(master, i * dx, j * dy, false));
+                        result.add(new FemNode(master, i * dx, j * dy, false, t0));
                     }
                     master++;
                 }
@@ -76,6 +86,7 @@ class FemGrid {
             int nH = Integer.parseInt(prop.getProperty("nH"));
             int nW = Integer.parseInt(prop.getProperty("nW"));
 
+
             for (int i = 0, j = 1, h = 0; h < (nH - 1) * (nW - 1); i++, j++, h++) {
 
                 int ID1 = i + 1;
@@ -94,7 +105,8 @@ class FemGrid {
                     double x = this.nodes.get(id - 1).getX();
                     double y = this.nodes.get(id - 1).getY();
                     boolean b = this.nodes.get(id - 1).isBc();
-                    FemNode n = new FemNode(id, x, y, b);
+                    double t0 = this.nodes.get(id - 1).getT();
+                    FemNode n = new FemNode(id, x, y, b, t0);
                     ns.add(n);
                 }
 

@@ -9,26 +9,42 @@ public class FemMain {
 
         int nH = 0;
         int nW = 0;
+        double simTime = 0.;
+        double dT = 0.;
+        double t0 = 0.;
         try (InputStream input = new FileInputStream(Globals.CONFIG_RELATIVE_PATH)) {
             Properties prop = new Properties();
             prop.load(input);
 
             nH = Integer.parseInt(prop.getProperty("nH"));
             nW = Integer.parseInt(prop.getProperty("nW"));
+            simTime = Double.parseDouble((prop.getProperty("simTime")));
+            dT = Double.parseDouble((prop.getProperty("deltaT")));
+            t0 = Double.parseDouble((prop.getProperty("t0")));
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+
+        int numberOfTimeSteps = (int) (simTime / dT);
 
         FemGrid grid = new FemGrid();
         grid.GenerateGrid();
 
         double[][] HGlobal = fillHglobal(nH * nW, grid);
         double[][] CGlobal = fillCglobal(nH * nW, grid);
-        double[] PGlobal = gillPglobal(nH * nW, grid);
+        double[] PGlobal = fillPglobal(nH * nW, grid, CGlobal, dT, t0);
+
+        double[][] H_plus_C_over_deltaT = HGlobal.clone();
+//        for (int i = 0; i < numberOfTimeSteps; i++) {
+//            H_plus_C_over_deltaT = calculateH_plus_C_over_deltaT(H_plus_C_over_deltaT, CGlobal, dT);
+//            System.out.printf("Iteretion " + i+"\n");
+//            Matrices.printTable(H_plus_C_over_deltaT);
+//            System.out.printf("\n\n");
+//        }
 
 
 //        grid.print();
-        //grid.printElementByElementNumber(5);
+//        grid.printElementByElementNumber(5);
 
         //System.out.printf("Eta Table:\n");
         //Matrices.printTable(Matrices.getEtaTableValue());
@@ -77,11 +93,22 @@ public class FemMain {
 //        }
 
 //        Matrices.printTable(HGlobal);
-//        Matrices.printTable(CGlobal);
-        Matrices.printVector(PGlobal);
+        Matrices.printTable(CGlobal);
+        // Matrices.printVector(PGlobal);
     }
 
-    private static double[] gillPglobal(int size, FemGrid grid) {
+    private static double[][] calculateH_plus_C_over_deltaT(double[][] HGlobal, double[][] CGlobal, double dT) {
+        return Matrices.add(
+                HGlobal,
+                Matrices.multiplyByValue(
+                        CGlobal,
+                        1. / dT
+                )
+        );
+    }
+
+
+    private static double[] fillPglobal(int size, FemGrid grid, double[][] CGlobal, double dT, double t0) {
         double[] result = new double[size];
         for (Element element : grid.getElements()) {
             element.calculateP();
@@ -89,6 +116,20 @@ public class FemMain {
                 result[element.getId().get(i).getId() - 1] += element.getP()[i];
             }
         }
+        double[] tt0 = new double[size];
+        for (int i = 0; i < size; i++) {
+            tt0[i] = t0;
+        }
+        result = Matrices.addVectors(
+                result,
+                Matrices.multiplyMatrixByVector(
+                        Matrices.multiplyByValue(
+                                CGlobal,
+                                1. / dT
+                        ),
+                        tt0
+                )
+        );
         return result;
     }
 

@@ -64,27 +64,27 @@ class Element {
     //Wektor P
     void calculateP() {
         calculateShapeFunctions();
-        calculateDetJ();
+        calculateDetJ();  //Powinienem to liczyć po powierzchni, czyli dla krawędzi bocznych, czyli po 2 punkty na krawędź z wspóżędnymi +- 0,58
 
         P = Matrices.addVectors(
                 Matrices.addVectors(
                         Matrices.multiplyVectorByValue(
                                 Nipc1,
-                                ALFA*TINF*detJpc1
-                                ),
+                                ALFA * TINF * detJpc1 * (id.get(0).isBc() ? 1.0 : 0.0)  //detJ liczę po objętości zamiast po powierzchni
+                        ),
                         Matrices.multiplyVectorByValue(
                                 Nipc2,
-                                ALFA*TINF*detJpc2
+                                ALFA * TINF * detJpc2 * (id.get(1).isBc() ? 1.0 : 0.0)
                         )
                 ),
                 Matrices.addVectors(
                         Matrices.multiplyVectorByValue(
                                 Nipc3,
-                                ALFA*TINF*detJpc3
+                                ALFA * TINF * detJpc3 * (id.get(2).isBc() ? 1.0 : 0.0)
                         ),
                         Matrices.multiplyVectorByValue(
                                 Nipc4,
-                                ALFA*TINF*detJpc4
+                                ALFA * TINF * detJpc4 * (id.get(3).isBc() ? 1.0 : 0.0)
                         )
                 )
         );
@@ -360,14 +360,14 @@ class Element {
             FemNode numb = id.get(i);
             if (numb.isBc()) {
                 if (i < id.size() - 1) {
-                    System.out.print("*" + numb.getId() + "* x: " + numb.getX() + " y: " + numb.getY() + ", ");
+                    System.out.print("*" + numb.getId() + "* x: " + numb.getX() + " y: " + numb.getY() + " t: " + numb.getT() + ", ");
                 } else {
-                    System.out.print("*" + numb.getId() + "* x: " + numb.getX() + " y: " + numb.getY());
+                    System.out.print("*" + numb.getId() + "* x: " + numb.getX() + " y: " + numb.getY() + " t: " + numb.getT());
                 }
             } else if (i < id.size() - 1) {
-                System.out.print(numb.getId() + " x: " + numb.getX() + " y: " + numb.getY() + ", ");
+                System.out.print(numb.getId() + " x: " + numb.getX() + " y: " + numb.getY() + " t: " + numb.getT() + ", ");
             } else {
-                System.out.print(numb.getId() + " x: " + numb.getX() + " y: " + numb.getY());
+                System.out.print(numb.getId() + " x: " + numb.getX() + " y: " + numb.getY() + " t: " + numb.getT());
             }
         }
         System.out.print("]\n");

@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 public class Matrices {
 
     static void printTable(double[][] tab) {
@@ -77,5 +80,14 @@ public class Matrices {
             }
         }
         return result;
+    }
+
+    public static double[] multiplyMatrixByVector(double[][] matrix, double[] vector) {
+        return Arrays.stream(matrix)
+                .mapToDouble(row ->
+                        IntStream.range(0, row.length)
+                                .mapToDouble(col -> row[col] * vector[col])
+                                .sum()
+                ).toArray();
     }
 }
